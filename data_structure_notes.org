@@ -1,0 +1,15 @@
+
+* Overview
+  The purpose of this file is to collect notes about the structure of
+  the data.
+
+* SNP data
+: {user:{rsid:[(chromosome,start,stop,genotype)]}}
+  That is, each user has a set of rsids.  Each rsid is associated with
+  a /list/ of tuples (chromosome, start, stop, genotype), since the
+  rsid is not unique.
+
+* Phenotype
+: {user:{phenotype:value}}
+  Each user has a value for each phenotype, assuming =None= is an
+  admissible value.
