@@ -1,0 +1,10 @@
+* Parsers
+** Phenotype
+** DONE 23andme 
+   Maybe look into rs -> i issue?
+** TODO Illumina
+** TODO IYG
+** TODO Decodeme
+** Fitbit?
+    
+
