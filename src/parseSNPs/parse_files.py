@@ -104,9 +104,12 @@ def process(params):
     d = params["DIR"]
     directory = os.listdir(d)
     dir_count = 0
+    # Count number of files to process for progress reporting
     for filename in directory:
         if (fnmatch.fnmatch(filename, params["FILE"])):
             dir_count += 1
+            
+    # Process each selected file.  Returns a dictionary structured as {rsid:{(chromosome, position):{genotype:count_of_occurences}}}
     for filename in directory:
         if (fnmatch.fnmatch(filename, params["FILE"])):
             with open(os.path.join(d, filename)) as f:
@@ -135,21 +138,28 @@ def process(params):
                                 skip = True
                     if (not skip):
                         rsid = data[0].upper()
-                        gtype = data[3]
+                        genotype = data[3]
     
 #                        if (rsid_re.match(rsid)                          
                         if (fnmatch.fnmatch(rsid, params["RSID"]) 
                             and chrom >= chrom_start and chrom <= chrom_end 
                             and pos >= pos_start and pos <= pos_end):
                             lines += 1
+                            chrom_position = (chrom,pos)
                             if (rsid in rsids):
-                                genotypes = rsids[rsid]
-                                if (gtype in genotypes):
-                                    genotypes[gtype] = genotypes[gtype] + 1
+                                chrom_positions = rsids[rsid]
+                                if [chrom_position in chrom_positions]:
+                                    genotypes = chrom_positions[chrom_position]
+                                    if (genotype in genotypes):
+                                        genotypes[genotype] = genotypes[genotype] + 1
+                                    else:
+                                        genotypes[genotype] = 1
+                                    chrom_positions[chrom_position] = genotypes
                                 else:
-                                    genotypes[gtype] = 1
+                                    chrom_positions[chrom_position] = {genotype:1}
+                                rsids[rsid] = chrom_positions
                             else:
-                                rsids[rsid] = {gtype:1}
+                                rsids[rsid] = {(chrom_position):{genotype:1}}
                             if params["SHOWLINEPROGRESS"]:
                                 print "file: " + str(files) + "/" + str(dir_count) \
                                     + "  line: " + str(lines) + "\r", 
@@ -176,5 +186,6 @@ if __name__=="__main__":
 
 print "\n"
 
-print sorted(results.items(), key=lambda t: int(t[0][2:]))
+for entry in sorted(results.items(), key=lambda t: int(t[0][2:])):
+    print entry
             
