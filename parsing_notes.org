@@ -1,0 +1,58 @@
+* SNP formats
+** 23andme
+*** Size
+    386 users, 298 files
+    To count unique users:
+: ls | grep -Po "user.*?_" | uniq | wc
+*** Sample format
+    Note: =rs= is /not/ a unique prefix for rsid!  =i= also occurs.
+: # rsid  chromosome      position        genotype
+: rs4477212       1       72017   AA
+: rs3094315       1       742429  AA
+: rs3131972       1       742584  GG
+: rs12562034      1       758311  GG
+: rs12124819      1       766409  GG
+** Illumina
+*** Size
+    29 users, 36 files
+*** Sample format
+: RSID,CHROMOSOME,POSITION,RESULT
+: "rs3094315,""1"",""742429"",""AA"""
+: "rs3131972,""1"",""742584"",""GG"""
+: "rs12562034,""1"",""758311"",""GG"""
+: "rs12124819,""1"",""766409"",""AG"""
+: "rs11240777,""1"",""788822"",""GG"""
+: "rs6681049,""1"",""789870"",""CC"""
+: "rs4970383,""1"",""828418"",""AC"""
+: "rs4475691,""1"",""836671"",""TC"""
+: "rs7537756,""1"",""844113"",""AG"""
+** IYG
+*** Size
+    8 users, 8 files
+*** Sample Format
+: rs2131925       GT
+: rs2815752       AA
+: rs10924081      AA
+: rs984222        GG
+: rs7522380       AG
+: rs141282873     TT
+: rs12566888      GT
+: rs2814778       TT
+: rs1704745       AG
+: rs1011731       GG
+** Decodeme
+*** Size
+    3 users, 3 files
+*** Sample Format
+: Name,Variation,Chromosome,Position,Strand,YourCode
+: rs4345758,C/T,1,28663,+,--
+: rs4477212,A/G,1,72017,+,--
+: rs1856862,A/T,1,110905,-,--
+: rs4096703,C/G,1,160593,+,--
+: rs2994597,A/T,1,593369,-,--
+: rs3871859,G/T,1,640354,-,--
+: rs4000335,A/G,1,679049,+,--
+: rs28659788,C/G,1,713170,+,--
+: rs3094315,C/T,1,742429,-,CT
+* Other datasets
+** Fitbit
