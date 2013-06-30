@@ -1,9 +1,10 @@
 DIR	C:\OpenSNP
-FILE	user8_*.txt
+FILE	*decodeme.txt
 RSID	
+# Note:  IYG files contain no chromosome or position so don't use these options when parsing IYG.
 CHROMSTART	1
 CHROMEND	1
-POSSTART	1244993
-POSEND	1309499
+POSSTART	
+POSEND	
 SHOWFILEPROGRESS	T
-SHOWLINEPROGRESS	T
+SHOWLINEPROGRESS	
