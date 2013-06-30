@@ -104,6 +104,7 @@ def process(params):
     directory = os.listdir(d)
     dir_count = 0
     fileTypeCounts={}
+    skipped_files = []
     
     # Count number of files to process for progress reporting
     for filename in directory:
@@ -189,6 +190,8 @@ def process(params):
                                 skip = True
                         else: 
                             skip = True
+                            skipped_files.append(filename)
+                            exit_file = True
                             
                         if (not skip):
                             try:
@@ -199,12 +202,17 @@ def process(params):
                                 pos = int(data[2])
                             except ValueError:
                                 skip = True
-                    if (not skip and not len(data[0]) > 20):
+                    if len(data[0]) > 20:
+                        skipped_files.append(filename)
+                        exit_file = True
+                    elif not skip:
                         rsid = data[0].upper()
                         genotype = data[3]
                         
                         # Optimization.  Relies on files being in chromosome # sequence
-                        if chrom > 0 and chrom > chrom_end:
+                        if (rsid == "RS10403190"):
+                            i = 1
+                        if chrom_end > 0 and chrom > chrom_end:
                             exit_file = True
                             continue
                         if (fnmatch.fnmatch(rsid, params["RSID"]) and chrom >= chrom_start 
@@ -230,6 +238,11 @@ def process(params):
                         print "file: %d/%d  lines read: %d, processed %d  elapsed: %d minutes, %d seconds\r" % (files, dir_count, lines_read, lines_processed, elapsed[0], elapsed[1]) 
                         sys.stdout.flush()
                     line = f.readline();
+    if(len(skipped_files) > 0):
+        print 
+        print "Skipped Files"
+        for file in skipped_files:
+            print file
     return rsids
 
 """
@@ -249,16 +262,17 @@ if __name__=="__main__":
     with open(filename) as f:
         line = f.readline()
         while (line != ""):
-            values = line.strip().split("\t")
-            if (len(values) > 1 and values[0].strip()):
-                params[values[0].strip().upper()]=values[1].strip()
+            if line[0:1] != "#":
+                values = line.strip().split("\t")
+                if (len(values) > 1 and values[0].strip()):
+                    params[values[0].strip().upper()]=values[1].strip()
             line = f.readline()
 
     results = process(params)
 
 print "\n"
 
-if (len(results) > 1):
+if (len(results) > 0):
 #    for entry in sorted(results.items(), key=lambda t: rsid_key_seq(t[0])):
     for entry in sorted(results.items()):
         print entry[0], ":", entry[1], "           " # Add whitespace to ensure there are no leftover chars when we overprint the prior line.
