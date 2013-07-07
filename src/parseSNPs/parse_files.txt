@@ -1,10 +1,50 @@
+# This file contains a tab-separated list of controls for running parse_files.py.  The format is 
+# [keyword](tab)[value]
+
+# The directory the SNP files are found in.  If "." or unspecified, the current directory is used.
 DIR	C:\OpenSNP
-FILE	*decodeme.txt
+
+# The names of the SNP file to process.  If unspecified, all files are processed.
+# The structure allows multiple groups of files since we may want to compare groups that display two 
+# different phenotypes.  The prefix is FILES + : + priority + : + label.  The value is a comma-separated
+# list of file selectors with wildcards allowed.  For example:
+#    FILES:Tongue Rollers:1 user894_*.txt,user895*.txt,user896*.txt,user897*.txt
+#    FILES:Non-Tongue Rollers:2 user898*.txt,user899*.txt
+#    FILES:Unknown:3 *.txt
+# This example compares three groups of files labeled "Tongue Rollers", "Non-Tongue Rollers" and "Unknown".
+# The files for each list are users whose phenotypes show that they belong in one of the first two categories or, 
+# for the last category, all files that don't fit into one of the first two groups.
+# The priority controls the order of selection.  The third group is a wildcard, so it includes all ".txt" files that
+# weren't already selected for one of the first two groups.
+FILES:Group 1:1	user10_*.txt, user11_*.txt, user13_*.txt, user14_*.txt
+FILES:Group 2:2	user20_*.txt, user22_*.txt, user26_*.txt
+
+# The RSID to search for int The file.  If unspecified or "*", all RSIDs are processed.
 RSID	RS10403190
-# Note:  IYG files contain no chromosome or position so don't use these options when parsing IYG.
+
+#
+# Note:  IYG files contain no chromosome or position so don't use these four options when parsing IYG.
+#
+# The starting chromosome to process.  If unspecified, all up to the CHROMEND# are processed
 CHROMSTART	
+
+# The last chromosome to process.  If unspecified, all starting with CHROMSTART# are processed
 CHROMEND	
+
+# The starting position on the chromosome to process.  If unspecified, all positions up to the END# are processed
 POSSTART	
+
+# The last position on the chromosome to process.  If unspecified, all positions starting with START# are processed
 POSEND	
+
+# 
+# Note: These three options just control progress output 
+#
+# If true, show the names of selected files and of files with no data to process that passes the selections in this file
+SHOWSELECTEDFILES	T
+
+# If true, show the progress of files as we process each
 SHOWFILEPROGRESS	T
-SHOWLINEPROGRESS	
+
+# If specified, show the progress of files and the lines in them each time we process another set of that many lines
+SHOWPROGRESS#LINES	100000	
