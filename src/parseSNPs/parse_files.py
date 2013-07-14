@@ -6,10 +6,9 @@ program.  The results are output to the console.  The heavy lifting is done by p
 Parameters are stored in a text file.  See parsefiles.txt 
 for an example.
 """
-
-import sys
+from snp_classes import *
 from snp_utils import *
-from parse_SNPs import DIR, FILES, RSID, CHROMSTART, CHROMEND, POSSTART, POSEND, SHOWFILEPROGRESS, SHOWPROGRESSLINES, SHOWSELECTEDFILES, parse_snps
+from parse_SNPs import parse_snps
 from datetime import datetime
 
 """
@@ -24,51 +23,68 @@ def rsid_key_seq( item ):
         return int(item[1:])
 """        
 if __name__=="__main__":
+    params = Params()
     filename = sys.argv[1]
-    params = {}
     f=file(filename,"r")
     for line in f:
-            if line[0:1] != "#":
-                values = line.strip().split("\t")
-                if (len(values) > 1 and values[0].strip()):
-                    name = values[0].strip()
-                    val = values[1].strip()
-                    if (name[0:len(FILES)] == FILES):
-                        # If this is a files param, assemble all the file values as a 
-                        # dictionary in the form {(priority,label): [fileName, fileName, fileName]}
-                        # so if multiple lines have the same (priority,label) combination, they
-                        # will be consolidated
-                        priority_label = (sys.maxint,"No Label") # default
-                        priority_label_vals = name.split(":")
-                        priority_label_len = len(priority_label_vals)
-                        if (priority_label_len > 2):
-                            priority_label = (int(priority_label_vals[2]), priority_label_vals[1])
-                        priority_labels = {} # default
-                        if FILES in params:
-                            priority_labels = params[FILES]  # Get previously parsed files
-                        files_list = [] # default
-                        if priority_label in priority_labels:
-                            files_list = priority_labels[priority_label]                            
-                        files_list.extend([x.strip() for x in val.split(",")])
-                        priority_labels[priority_label] = files_list
-                        name = FILES
-                        val = priority_labels
-                    params[name.upper()]=val
+        if line[0:1] != "#": # Skip comment lines
+            values = line.strip().split("\t")
+            if (len(values) > 1 and values[0].strip()): # Must have a non-blank name and a value
+                name = values[0].strip()
+                val = values[1].strip()
+                if (name.startswith("FILES")):
+                    # The "FILES" line int the parameter file will look like this:
+                    #   FILES:Group 1:1    user10_*.txt, user11_*.txt, user13_*.txt, user14_*.txt
+                    # The line is in two sections, separated by a tab.
+                    # The first section containers the group label and priority, separated by a colon
+                    # The second section lists file selectors for the group, separated by commas.
+                    file_group = FileGroup()
+                    label_and_priority = name.split(":")
+                    if len(label_and_priority) > 2:
+                        file_group.setLabel(label_and_priority[1])         
+                        file_group.setPriority(int(label_and_priority[2]))                  
+                    for file_selector in val.split(","):
+                        file_group.addFileSelector(file_selector)
+                    params.addFileGroup(file_group)
+                else:
+                    # Most lines in the file are simple name/value pairs separated by a tab.  E.g.:
+                    # RSID    RS10403190
+                    name = name.upper()
+                    if(name == "DIR"):
+                        params.setDir(val)
+                    elif( name == "RSID"):
+                        params.setRSID(val)
+                    elif( name == "CHROMSTART"):
+                        params.setChromStart(int(val))
+                    elif( name == "CHROMEND"):
+                        params.setChromEnd(int(val))
+                    elif( name == "POSSTART"):
+                        params.setPosStart(int(val))
+                    elif( name == "POSEND"):
+                        params.setPosEnd(int(val))
+                    elif( name == "SHOWFILEPROGRESS"):
+                        # True can be represented by "TRUE", "T", "1", "YES" or "Y" in any case.
+                        params.setShowFileProgress(string_to_bool(val))
+                    elif( name == "SHOWPROGRESS#LINES"):
+                        params.setShowLinesProgressInterval(int(val))
+                    elif( name == "SHOWSELECTEDFILES"):
+                        # True can be represented by "TRUE", "T", "1", "YES" or "Y" in any case.
+                        params.setShowSelectedFiles(string_to_bool(val))
     f.close()
-    results = parse_snps(params)
+    results_set = parse_snps(params)
 
-print "\n"
-
-if (len(results) > 0):
-#    for entry in sorted(results.items(), key=lambda t: rsid_key_seq(t[0])):
-    for entry in sorted(results.items()):
-        print entry[0], ":", entry[1], "           " # Add whitespace to ensure there are no leftover chars when we overprint the prior line.
-else:
-    print "Nothing matched selections"
-
-elapsed = elapsed = get_elapsed();
-print
-print "Elapsed: %d minutes, %d seconds" % (elapsed[0], elapsed[1])
+    print "\n"
+    print str(params)
+    print "\n" 
+    if (len(results_set) > 0):
+    #    for entry in sorted(results.items(), key=lambda t: rsid_key_seq(t[0])):
+        print str( results_set )
+    else:
+        print "Nothing matched selections"
+    
+    elapsed = elapsed = get_elapsed();
+    print
+    print "Elapsed: %d minutes, %d seconds" % (elapsed[0], elapsed[1])
 
 
             
