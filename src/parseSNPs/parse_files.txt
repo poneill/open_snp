@@ -20,22 +20,20 @@ FILES:Group 1:1	user10_*.txt, user11_*.txt, user13_*.txt, user14_*.txt
 FILES:Group 2:2	user20_*.txt, user22_*.txt, user26_*.txt
 
 # The RSID to search for int The file.  If unspecified or "*", all RSIDs are processed.
-RSID	RS10403190
+RSID	
 
 #
 # Note:  IYG files contain no chromosome or position so don't use these four options when parsing IYG.
 #
-# The starting chromosome to process.  If unspecified, all up to the CHROMEND# are processed
-CHROMSTART	
-
-# The last chromosome to process.  If unspecified, all starting with CHROMSTART# are processed
-CHROMEND	
+# A comma-separated list of the chromosomes (e.g. numbers from 1 to 23, X, Y and/or MT) to process.  
+# If unspecified, all are processed
+CHROMOSOMES	1,X
 
 # The starting position on the chromosome to process.  If unspecified, all positions up to the END# are processed
-POSSTART	
+POSSTART	154886032
 
 # The last position on the chromosome to process.  If unspecified, all positions starting with START# are processed
-POSEND	
+POSEND	154892982
 
 # 
 # Note: These three options just control progress output 

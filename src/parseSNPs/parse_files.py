@@ -41,35 +41,35 @@ if __name__=="__main__":
                     file_group = FileGroup()
                     label_and_priority = name.split(":")
                     if len(label_and_priority) > 2:
-                        file_group.setLabel(label_and_priority[1])         
-                        file_group.setPriority(int(label_and_priority[2]))                  
+                        file_group.set_label(label_and_priority[1])         
+                        file_group.set_priority(int(label_and_priority[2]))                  
                     for file_selector in val.split(","):
-                        file_group.addFileSelector(file_selector)
-                    params.addFileGroup(file_group)
+                        file_group.add_file_selector(file_selector)
+                    params.add_file_group(file_group)
                 else:
                     # Most lines in the file are simple name/value pairs separated by a tab.  E.g.:
                     # RSID    RS10403190
                     name = name.upper()
                     if(name == "DIR"):
-                        params.setDir(val)
+                        params.set_directory_location(val)
                     elif( name == "RSID"):
-                        params.setRSID(val)
-                    elif( name == "CHROMSTART"):
-                        params.setChromStart(int(val))
-                    elif( name == "CHROMEND"):
-                        params.setChromEnd(int(val))
+                        params.set_rsid(val)
+                    elif( name == "CHROMOSOMES"):
+                        if ( len( val ) > 0 ):
+                            for chromosome in map(strip, val.split(",")):
+                                params.add_chromosome( chromosome )
                     elif( name == "POSSTART"):
-                        params.setPosStart(int(val))
+                        params.set_position_start(int(val))
                     elif( name == "POSEND"):
-                        params.setPosEnd(int(val))
+                        params.set_position_end(int(val))
                     elif( name == "SHOWFILEPROGRESS"):
                         # True can be represented by "TRUE", "T", "1", "YES" or "Y" in any case.
-                        params.setShowFileProgress(string_to_bool(val))
+                        params.set_show_file_progress(string_to_bool(val))
                     elif( name == "SHOWPROGRESS#LINES"):
-                        params.setShowLinesProgressInterval(int(val))
+                        params.set_show_lines_progress_interval(int(val))
                     elif( name == "SHOWSELECTEDFILES"):
-                        # True can be represented by "TRUE", "T", "1", "YES" or "Y" in any case.
-                        params.setShowSelectedFiles(string_to_bool(val))
+                        # True can be represented by "TRUE", "T", "1", "YES" or "Y" in any case.    
+                        params.set_show_selected_files(string_to_bool(val))
     f.close()
     results_set = parse_snps(params)
 
@@ -85,6 +85,3 @@ if __name__=="__main__":
     elapsed = elapsed = get_elapsed();
     print
     print "Elapsed: %d minutes, %d seconds" % (elapsed[0], elapsed[1])
-
-
-            

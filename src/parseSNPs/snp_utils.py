@@ -26,12 +26,12 @@ def string_to_bool(string_val):
 def strip_quotes(val):
     if val[0:1] == "\"":
         val = val[1:]
-    if val[len(val)-1:] == "\"":
-        val = val[:len(val)-1]
+    if val[len(val) - 1:] == "\"":
+        val = val[:len(val) - 1]
     return val
 
 # Increment a counter in a dictionary
-def inc_dict_counter(counter, value):
+def increment_dictionary_counter(counter, value):
     if (value in counter):
         counter[value] += 1
     else:

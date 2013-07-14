@@ -8,41 +8,41 @@ import fnmatch
 ####################################################################################
 class ResultsSet:
 	# Constructor
-	def __init__( self ):
+	def __init__(self):
 		self.results = {}
 
 	# Get the length of the results	
-	def __len__( self ):
+	def __len__(self):
 		return(len(self.results))
 	
 	# Convert contents to string
-	def __str__( self ):
+	def __str__(self):
 		string_out = "( Results:"
-		for result in sorted( self.getResultsIter() ):
-			string_out += str( result )
+		for result in sorted(self.get_results_iterator()):
+			string_out += str(result)
 		string_out += " )\n"
 		return string_out
 	
 	# Get a result if it exists.  Otherwise return None
-	def getResultOrNone( self, rsid, chromosome, position):
-		key = Result.getKeyStatic(rsid, chromosome, position)
+	def get_result_or_none(self, rsid, chromosome, position):
+		key = Result.get_key_static(rsid, chromosome, position)
 		result = None
 		if (key in self.results):
 			result = results[key]
 		return result	
 	
-	# Get a result if found or create a result for the parms passed in and return it
-	def getResultAlways( self, rsid, chromosome, position):
-		key = Result.getKeyStatic(rsid, chromosome, position)
+	# Get a result if found or create a result for the SnpValues instance passed in and return the result
+	def get_result_always(self, snp_values):
+		key = Result.get_key_static(snp_values.get_rsid(), snp_values.get_chromosome(), snp_values.get_position())
 		if (key in self.results):
 			result = self.results[key]
 		else:
-			result = Result(rsid, chromosome, position)
+			result = Result(snp_values.get_rsid(), snp_values.get_chromosome(), snp_values.get_position())
 			self.results[key] = result
 		return result
 	
 	# return an iterator of the results
-	def getResultsIter( self ):
+	def get_results_iterator(self):
 		return self.results.itervalues()
 		
 ####################################################################################
@@ -53,15 +53,18 @@ class ResultsSet:
 class Result:
 	
 	# Constructor
-	def __init__( self, rsid, chromosome, position):
+	def __init__(self, rsid, chromosome, position):
 		self.rsid = rsid
 		self.chromosome = chromosome
 		self.position = position
 		self.groups = {}
 	
 	# Convert the contents to a String
-	def __str__( self ):
-		string_out = "\n   " + "( Result: rsid " + str(self.rsid) + ", chromosome " + str(self.chromosome) + ", position " + str(self.position) + ": "
+	def __str__(self):
+		string_out = "\n   "
+		string_out += "( Result: rsid " + str(self.rsid) 
+		string_out += ", chromosome " + str(self.chromosome) 
+		string_out += ", position " + str(self.position)
 		for entry in sorted(self.groups.items()):
 			string_out += "\n      " + str(entry[1])   
 		string_out += "\n   " + ")\n"
@@ -69,40 +72,40 @@ class Result:
 	
 	# Statically get a key so it can be accessed without a Result instance
 	@staticmethod
-	def getKeyStatic( rsid, chromosome, position):
+	def get_key_static(rsid, chromosome, position):
 		return (rsid, chromosome, position)
 	
 	# Get a key that can be used when placing these in a dictionary
-	def getKey( self ):
-		return getKey(self.rsid, self.chromosome, self.position)
+	def get_key(self):
+		return get_key(self.rsid, self.chromosome, self.position)
 	
 	# Get the RSID for these results
-	def getRsid ( self ):
+	def get_rsid (self):
 		return rsid
 	
 	# Get the chromosome number for these results
-	def getChromosome ( self ):
+	def get_chromosome (self):
 		return chromosome
 	
 	# Get the postition for these results
-	def getPosition ( self ):
+	def get_position (self):
 		return position
 	
 	# Add one genotype for a given group label
-	def addOne ( self, label, gtype ):
+	def add_one (self, label, gtype):
 		if label not in self.groups:
-			self.groups[ label ] = Group( label )
-		self.groups[ label ].addGtype( gtype )
+			self.groups[ label ] = Group(label)
+		self.groups[ label ].add_genotype(gtype)
 	
 	# Get the results for a group given the label
-	def getGroup ( self, label ):
+	def get_group (self, label):
 		if label in self.gtypes:
 			return self.gtypes[ label ]
 		else:
-			return Group( label )
+			return Group(label)
 	
 	# Get all the groups as a dictionary of {label : group}
-	def getGroups( self ):
+	def get_groups(self):
 		return self.groups
 
 ####################################################################################
@@ -112,42 +115,41 @@ class Result:
 ####################################################################################
 class Group:
 	# Constructor
-	def __init__( self, label):
+	def __init__(self, label):
 		self.label = label
 		self.gtypes = {}
 	
 	# Convert the contents to a string
-	def __str__( self ):
+	def __str__(self):
 		string_out = "( Group: label '" + self.label + "': "
-		first = True
+		group_info = ""
 		for entry in sorted(self.gtypes.items()):
-			if not first:
+			if len( group_info ) > 0:
 				string_out += ", "
-			first = False
-        	string_out += entry[0] + "=" + str(entry[1])   
-		string_out += " )"
+        	group_info += entry[0] + "=" + str(entry[1])   
+		string_out += group_info + " )"
 		return string_out
 	
 	# Get the group label	
-	def getLabel ( self ):
+	def get_label (self):
 		return label
 	
 	# Add a single genotype instance for the group	
-	def addGtype ( self, gtype ):
+	def add_genotype (self, gtype):
 		if gtype in self.gtypes:
 			self.gtypes[gtype] += 1
 		else:
 			self.gtypes[gtype] = 1
 	
 	# Get the count of a single genotype in the group
-	def getCount ( self, gtype ):
+	def get_count (self, gtype):
 		if gtype in self.gtypes:
 			return self.gtypes[gtype]
 		else:
 			return 0
 			
 	# Get all the genotype counts in the group as a dictionary in the format {genotype : count}
-	def getCounts( self ):
+	def get_counts(self):
 		return self.gtypes
 	
 ####################################################################################
@@ -157,11 +159,10 @@ class Group:
 ####################################################################################
 class Params:
 	# Constructor
-	def __init__( self ):
+	def __init__(self):
 		self.dir = "."
 		self.rsid = "*"
-		self.chrom_start = 0
-		self.chrom_end = 23
+		self.chromosomes = None
 		self.pos_start = 0
 		self.pos_end = sys.maxint
 		self.show_progress_lines = 0
@@ -171,29 +172,36 @@ class Params:
 		# {{0,"Default"}, ["*"]}
 	
 	# Convert the contents to a string
-	def __str__( self ):
+	def __str__(self):
 		string_out = "( Params: \n   rsid " + self.rsid
-		string_out += "\n   chrom_start " + str( self.chrom_start ) 
-		string_out += "\n   chrom_end " + str( self.chrom_end ) 
-		string_out += "\n   pos_start " + str( self.pos_start ) 
-		string_out += "\n   pos_end " + str( self.pos_end ) 
-		string_out += "\n   show_file_progress " + str( self.show_file_progress ) 
-		string_out += "\n   show_selected_files " + str( self.show_selected_files ) 
-		string_out += "\n   show_lines_progress_interval " + str( self.show_lines_progress_interval ) 
+		string_out += "\n   chromosomes " + str(self.chromosomes)
+		string_out += "\n   pos_start " + str(self.pos_start) 
+		string_out += "\n   pos_end " + str(self.pos_end) 
+		string_out += "\n   show_file_progress " + str(self.show_file_progress) 
+		string_out += "\n   show_selected_files " + str(self.show_selected_files) 
+		string_out += "\n   show_lines_progress_interval " + str(self.show_lines_progress_interval) 
 		string_out += "\n   dir " + self.dir
 		string_out += "\n   file groups:"
 		for file_group in self.file_groups:
-			string_out += str( file_group )  
+			string_out += str(file_group)  
 		string_out += "\n)"
 		return string_out
+				
+	# Add a chromosome to include.  Can be a chromosome number or letter such as X or Y.  
+	# If no chromosomes are added, all are processed.	
+	def add_chromosome (self, chromosome):
+		if self.chromosomes == None:
+			self.chromosomes = [ chromosome ]
+		else:
+			self.chromosomes.append(chromosome)
 	
 	# Add a file group
-	def addFileGroup ( self, file_group ):
+	def add_file_group (self, file_group):
 		i = 0
 		inserted = False
-		while i < len ( self.file_groups ):
+		while i < len (self.file_groups):
 			# Keep groups in priority sequence
-			if file_group.getPriority() < self.file_groups[i].getPriority():
+			if file_group.get_priority() < self.file_groups[i].get_priority():
 				self.file_groups.insert(i, file_group)
 				inserted = True
 				break
@@ -201,93 +209,94 @@ class Params:
 		if not inserted:
 			self.file_groups.append(file_group)
 				
-	# Get the ending chromosome number to include.  Ignore all chromosome numbers greater than this value.
-	def getChromEnd ( self ):
-		return self.chrom_end
-	
-	# Get the starting chromosome number to include.  Ignore all chromosome numbers below this value.
-	def getChromStart ( self ):
-		return self.chrom_start
+	# Get the chromosomes to include.  If None, all are included
+	def get_chromosomes (self):
+		return self.chromosomes
 	
 	# Get the directory containing the SNP files.  E.g. 'C:\\OpenSNP'
-	def getDir ( self ):
+	def get_directory_location (self):
 		return self.dir
 	
 	# If the filename passed in matches a file group, return the group label	
-	def getFileGroupLabel ( self, file_name ):
+	def get_file_group_label (self, file_name):
 		label = "Default"
 		if len(self.file_groups) > 0:
 			label = None
 			for file_group in self.file_groups:
-				if file_group.matches( file_name ):
-					label = file_group.getLabel()
+				if file_group.matches(file_name):
+					label = file_group.get_label()
 					break
 		return label
 	
 	# Get the ending chromosome position to include. Ignore all positions in chromosomes greater than this value.
-	def getPosEnd ( self ):
+	def get_position_end (self):
 		return self.pos_end
 	
 	# Get the starting chromosome position to include. Ignore all chromosome numbers below this value.
-	def getPosStart ( self ):
+	def get_position_start (self):
 		return self.pos_start
 	
 	# Get the pattern of RSIDs to process.  Allows the selections to be limited 
 	# to one or more specific or all RSIDs. The value can be specified with 
 	# wild cards. E.g. RSID10403190 or RSID104*
-	def getRSID ( self ):
+	def get_rsid (self):
 		return self.rsid
 	
-	# If True and getShowLinesProgressInterval is zero, show progress information as each new file is processed
-	def getShowFileProgress ( self ):
+	# If True and get_show_lines_progress_interval is zero, show progress information as each new file is processed
+	def get_show_file_progress (self):
 		return self.show_file_progress
 	
 	# Get the line progress interval.  For example, if this value is 100, update the line progress every 100th line.
-	def getShowLinesProgressInterval ( self ):
+	def get_show_lines_progress_interval (self):
 		return self.show_lines_progress_interval
 	
 	# Get an indicator whether selected files should be listed to the console.
 	# If True, also list files with no data to process that passes the selections in this file	
-	def getShowSelectedFiles ( self ):
+	def get_show_selected_files (self):
 		return self.show_selected_files
-				
-	# Set the ending chromosome number to include.Ignore all chromosome numbers greater than this value.	
-	def setChromEnd ( self, chrom_end ):
-		self.chrom_end = chrom_end
 	
-	# Set the starting chromosome number to include.  Ignore all chromosome numbers below this value.
-	def setChromStart ( self, chrom_start ):
-		self.chrom_start = chrom_start
+	# Determine whether a SnpValues instance should be processed
+	def process (self, snp_values):
+		chromosome_ok = self.chromosomes == None
+		if not chromosome_ok:
+			for chromosome in self.chromosomes:
+				chromosome_ok = fnmatch.fnmatch(snp_values.get_chromosome(), chromosome)
+				if chromosome_ok:
+					break;
+		return fnmatch.fnmatch(snp_values.get_rsid(), self.rsid) \
+			and chromosome_ok \
+			and snp_values.get_position() >= self.pos_start \
+			and snp_values.get_position() <= self.pos_end
 	
 	# Set the directory containing the SNP files.  E.g. 'C:\\OpenSNP'
-	def setDir ( self, dir ):
+	def set_directory_location (self, dir):
 		self.dir = dir.strip().upper()
 	
 	# Set the ending chromosome position to include. Ignore all positions in chromosomes greater than this value.
-	def setPosEnd ( self, pos_end ):
+	def set_position_end (self, pos_end):
 		self.pos_end = pos_end
 	
 	# Set the starting chromosome position to include.  Ignore all positions in chromosomes less than this value.
-	def setPosStart ( self, pos_start ):
+	def set_position_start (self, pos_start):
 		self.pos_start = pos_start
 	
 	# Set pattern of RSIDs to process.  Allows the selections to be limited 
 	# to one or more specific or all RSIDs. The value can be specified with 
 	# wild cards. E.g. RSID10403190 or RSID104*
-	def setRSID ( self, rsid ):
+	def set_rsid (self, rsid):
 		self.rsid = rsid.strip().upper()
 	
-	# If True and getShowLinesProgressInterval is zero, show progress information as each new file is processed
-	def setShowFileProgress ( self, show_file_progress ):
+	# If True and get_show_lines_progress_interval is zero, show progress information as each new file is processed
+	def set_show_file_progress (self, show_file_progress):
 		self.show_file_progress = show_file_progress
 	
 	# Set the line progress interval.  For example, if this value is 100, update the line progress every 100th line.
-	def setShowLinesProgressInterval ( self, show_lines_progress_interval ):
+	def set_show_lines_progress_interval (self, show_lines_progress_interval):
 		self.show_lines_progress_interval = show_lines_progress_interval
 	
 	# Set an indicator whether selected files should be listed to the console.
 	# If True, also list files with no data to process that passes the selections in this file	
-	def setShowSelectedFiles ( self, show_selected_files ):
+	def set_show_selected_files (self, show_selected_files):
 		self.show_selected_files = show_selected_files
 
 ####################################################################################
@@ -297,13 +306,13 @@ class Params:
 ####################################################################################
 class FileGroup:
 	# Constructor
-	def __init__( self ):
+	def __init__(self):
 		self.label = "label"
 		self.priority = 1
 		self.files = []
 	
 	# Convert the contents to a string
-	def __str__( self ):
+	def __str__(self):
 		string_out = "\n      ( FileGroup: label " + self.label
 		string_out += ", priority " + str(self.priority) 
 		string_out += ", file selectors:"
@@ -313,19 +322,19 @@ class FileGroup:
 		return string_out
 	
 	# Add a file selector to the group
-	def addFileSelector ( self, file_selector ):
-		self.files.append( file_selector.strip() )
+	def add_file_selector (self, file_selector):
+		self.files.append(file_selector.strip())
 	
 	# Get the file group label
-	def getLabel ( self ):
+	def get_label (self):
 		return self.label
 	
 	# Get the file group priority	
-	def getPriority ( self ):
+	def get_priority (self):
 		return self.priority
 	
 	# Return True if the file name matches a file selector in this group
-	def matches( self, file_name ):
+	def matches(self, file_name):
 		matches = False;
 		for file_selector in self.files:
 			if (fnmatch.fnmatch(file_name, file_selector)):
@@ -334,9 +343,230 @@ class FileGroup:
 		return matches
 	
 	# Set the file group label
-	def setLabel ( self, label ):
+	def set_label (self, label):
 		self.label = label.strip()
 	
 	# Set the file group priority	
-	def setPriority ( self, priority ):
+	def set_priority (self, priority):
 		self.priority = priority
+
+####################################################################################
+#
+# Immutable class to manage file groups passed as parameters to parse_SNPs
+#
+####################################################################################
+class SnpValues:
+	
+	# Constructor
+	def __init__(self, rsid, chromosome, position, genotype):
+		self.rsid = rsid.upper()
+		self.chromosome = chromosome
+		self.position = position
+		self.genotype = genotype.upper()
+	
+	# Convert the contents to a string
+	def __str__(self):
+		string_out = "( SnpValues: RSID " + self.rsid
+		string_out += ", chromosome " + str(self.chromosome) 
+		string_out += ", position " + str(self.position) 
+		string_out += ", genotype " + str(self.genotype) 
+		string_out += " )"
+		return string_out
+	
+	# Get the RSID	
+	def get_rsid (self):
+		return self.rsid
+	
+	# Get the chromosome number	
+	def get_chromosome (self):
+		return self.chromosome 
+	
+	# Get the position on the chromosome	
+	def get_position (self):
+		return self.position
+	
+	# Get the genotype
+	def get_genotype (self):
+		return self.genotype
+
+####################################################################################
+#
+# Abstract class defining methods to process SNP files
+#
+####################################################################################
+class AbstractSNPProcessor(object):
+	
+	# Return true if this processor is appropriate for the file passed in
+	def handles_file(self, filename):
+		raise NotImplementedError("Should have implemented parse_line")
+	
+	# Get a label to use when summarizing counts for this file type
+	def get_file_type_label(self):
+		raise NotImplementedError("Should have implemented parse_line")
+	
+	# Parse a SNP file line of data for this file type
+	def parse_line(self, line):
+		raise NotImplementedError("Should have implemented parse_line")
+	
+	# Get a processor given the file name
+	@staticmethod
+	def get_processor(filename):
+		processor_out = None
+		for processor in processors:
+			if (processor.handles_file(filename)):
+				processor_out = processor
+				break
+		return processor_out
+
+####################################################################################
+#
+# Concrete class to process 23andme files
+#
+####################################################################################
+class TwentyThreeAndMeSNPProcessor(AbstractSNPProcessor):
+	
+	# Constructor
+	def __init__(self):
+		pass
+	
+	# Return true if this processor is appropriate for the file passed in
+	def handles_file(self, filename):
+		return fnmatch.fnmatch(filename, "*23andme.txt")
+	
+	# Get a label to use when summarizing counts for this file type
+	def get_file_type_label(self):
+		return "23andme"
+	
+	# Parse a SNP file line of data for this file type
+    # 23andme structure (tab separated):
+    # rsid      chromosome    pos    genotype
+    # rs4477212    1         72017    AA
+	def parse_line(self, line):
+		snp_values = None
+		data = map(strip, line.split("\t"))
+		if (len(data) == 4):
+			try:
+				snp_values = SnpValues(data[0], data[1], int(data[2]), data[3])
+			except ValueError:
+				pass  # Nothing to do.  Returning None handles the issue
+		return snp_values
+
+####################################################################################
+#
+# Concrete class to process illumina files
+#
+####################################################################################
+class IlluminaSNPProcessor(AbstractSNPProcessor):
+	
+	# Constructor
+	def __init__(self):
+		pass
+	
+	# Return true if this processor is appropriate for the file passed in
+	def handles_file(self, filename):
+		return fnmatch.fnmatch(filename, "*illumina.txt")
+	
+	# Get a label to use when summarizing counts for this file type
+	def get_file_type_label(self):
+		raise NotImplementedError("Should have implemented parse_line")
+	
+	# Parse a SNP file line of data for this file type
+	def parse_line(self, line):
+		snp_values = None
+		try:
+			# illumina can have two structures:
+			if (line[0:1] == "\""):
+				# RSID,CHROMOSOME,POSITION,RESULT
+				# "rs3094315","1","742429","AA"
+				data = map(strip_quotes, line.strip().split(",")) 
+				if (len(data) == 4):
+					snp_values = SnpValues(data[0], data[1], int(data[2]), data[3])
+			else:
+				# rsid        chromosome   position    allele1    allele2
+				# rs4477212        1        82154    T    T
+				data = line.strip().split("\t")
+				if (len(data) == 5):
+					snp_values = SnpValues(data[0], data[1], int(data[2]), data[3] + data[4])
+		except ValueError:
+			pass  # Nothing to do.  Returning None handles the issue
+		return snp_values
+
+####################################################################################
+#
+# Concrete class to process IYG files
+#
+####################################################################################
+class IYGSNPProcessor(AbstractSNPProcessor):
+	
+	# Constructor
+	def __init__(self):
+		pass
+	
+	# Return true if this processor is appropriate for the file passed in
+	def handles_file(self, filename):
+		return fnmatch.fnmatch(filename, "*IYG.txt")
+	
+	# Get a label to use when summarizing counts for this file type
+	def get_file_type_label(self):
+		return "iyg"
+	
+	# Parse a SNP file line of data for this file type
+	def parse_line(self, line):
+        # IYG structure:
+        # RSID,RESULT
+        # rs2131925    TT
+		snp_values = None
+		data = strip_quotes(line.strip()).split("\t")
+		if (len(data) == 2):
+			try:
+				snp_values = SnpValues(data[0], "", 0, data[1])
+			except ValueError:
+				pass  # Nothing to do.  Returning None handles the issue
+		return snp_values
+
+####################################################################################
+#
+# Concrete class to process decodeme files
+#
+####################################################################################
+class DecodeMeSNPProcessor(AbstractSNPProcessor):
+	
+	# Constructor
+	def __init__(self):
+		pass
+	
+	# Return true if this processor is appropriate for the file passed in
+	def handles_file(self, filename):
+		return fnmatch.fnmatch(filename, "*decodeme.txt")
+	
+	# Get a label to use when summarizing counts for this file type
+	def get_file_type_label(self):
+		return "decodeme"
+	
+	# Parse a SNP file line of data for this file type
+	def parse_line(self, line):
+		# decodeme structure:
+		# Name,Variation,Chromosome,Position,Strand,YourCode
+		# rs4345758,C/T,1,28663,+,TT		
+		snp_values = None
+		data = line.strip().split(",")
+		data = strip_quotes(line.strip()).split("\t")
+		if (len(data) == 6):
+			try:
+				snp_values = SnpValues(data[0], data[2], int(data[3]), data[5])
+			except ValueError:
+				pass  # Nothing to do.  Returning None handles the issue
+		return snp_values
+	
+
+####################################################################################
+#
+# Globals	
+#
+####################################################################################
+processors = [ TwentyThreeAndMeSNPProcessor(), IlluminaSNPProcessor(), IYGSNPProcessor(), DecodeMeSNPProcessor() ]
+
+def strip(string):
+    if string != None:
+        string = string.strip()
+    return string
