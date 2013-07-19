@@ -4,7 +4,7 @@
 # The directory the SNP files are found in.  If "." or unspecified, the current directory is used.
 DIR	C:\OpenSNP
 
-# The names of the SNP file to process.  If unspecified, all files are processed.
+# The names of the SNP files to process.  If unspecified, all files are processed.
 # The structure allows multiple groups of files since we may want to compare groups that display two 
 # different phenotypes.  The prefix is FILES + : + priority + : + label.  The value is a comma-separated
 # list of file selectors with wildcards allowed.  For example:
@@ -19,30 +19,41 @@ DIR	C:\OpenSNP
 FILES:Group 1:1	user10_*.txt, user11_*.txt, user13_*.txt, user14_*.txt
 FILES:Group 2:2	user20_*.txt, user22_*.txt, user26_*.txt
 
-# The RSID to search for int The file.  If unspecified or "*", all RSIDs are processed.
+# The RSID to search for in the file.  If unspecified or "*", all RSIDs are processed.  Example: 
+# RSID	rs4475691
 RSID	
 
 #
 # Note:  IYG files contain no chromosome or position so don't use these four options when parsing IYG.
 #
 # A comma-separated list of the chromosomes (e.g. numbers from 1 to 23, X, Y and/or MT) to process.  
-# If unspecified, all are processed
+# If unspecified, all are processed.  Example:
+# CHROMOSOMES	1,X
 CHROMOSOMES	1,X
 
-# The starting position on the chromosome to process.  If unspecified, all positions up to the END# are processed
+# The starting position on the chromosome to process.  If unspecified, all positions up to the END# are 
+# processed.  Example:
+# POSSTART	154886032
 POSSTART	154886032
 
-# The last position on the chromosome to process.  If unspecified, all positions starting with START# are processed
+# The last position on the chromosome to process.  If unspecified, all positions starting with START# 
+# are processed.  Example:
+# POSEND	154892982
 POSEND	154892982
 
 # 
 # Note: These three options just control progress output 
 #
-# If true, show the names of selected files and of files with no data to process that passes the selections in this file
+# If true, show the names of selected files and of files with no data to process that passes the selections 
+# in this file.  Example:
+# SHOWSELECTEDFILES	T
 SHOWSELECTEDFILES	T
 
-# If true, show the progress of files as we process each
+# If true, show the progress of files as we process each.  Example:
+# SHOWFILEPROGRESS	T
 SHOWFILEPROGRESS	T
 
-# If specified, show the progress of files and the lines in them each time we process another set of that many lines
+# If specified, show the progress of files and the lines in them each time we process another set of that 
+# many lines.  Example:
+# SHOWPROGRESS#LINES	100000
 SHOWPROGRESS#LINES	100000	
