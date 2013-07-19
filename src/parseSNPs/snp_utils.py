@@ -1,5 +1,7 @@
 """
 This module contains utility methods for the SNP parser.
+
+Author: David Gray
 """
 
 import sys

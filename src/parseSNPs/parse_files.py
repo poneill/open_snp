@@ -3,8 +3,9 @@ This program is designed to parse SNP files from OpenSNP.  It reads parameters t
 the parsing from a text file whose location is passed in as a parameter to the 
 program.  The results are output to the console.  The heavy lifting is done by parser.py. 
 
-Parameters are stored in a text file.  See parsefiles.txt 
-for an example.
+Parameters are stored in a text file.  See parsefiles.txt for an example.
+
+Author: David Gray
 """
 from snp_classes import *
 from snp_utils import *

@@ -3,6 +3,8 @@ This program is designed to parse SNP files from OpenSNP.
 
 Parameters that control what data is selected are passed to parse_snps in a Params instance.  
 (See snp_classes)
+
+Author: David Gray
 """
 import sys
 import fnmatch

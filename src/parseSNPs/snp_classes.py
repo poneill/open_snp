@@ -1,3 +1,10 @@
+"""
+These classes are used by parse_SNPs for parsing SNP files from OpenSNP and structuring
+the results.
+
+Author: David Gray
+"""
+
 import sys
 import fnmatch
 
