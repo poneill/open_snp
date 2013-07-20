@@ -9,6 +9,7 @@ Author: David Gray
 import sys
 import fnmatch
 import os
+import psutil
 from snp_classes import *
 from snp_utils import get_elapsed, string_to_bool, increment_dictionary_counter
 from datetime import datetime
@@ -21,6 +22,7 @@ def bypass(filename):
 def parse_snps(params):
     print "Processing files"
     files = 0
+    process = psutil.Process(os.getpid())
     directory_files = os.listdir(params.get_directory_location())
     dir_count = 0
     fileTypeCounts = {}
@@ -57,7 +59,7 @@ def parse_snps(params):
                 files += 1
                 if params.get_show_file_progress() and params.get_show_lines_progress_interval() <= 0:
                     elapsed = snp_utils.get_elapsed();
-                    print "files: %d/%d  elapsed: %d minutes, %d seconds          \r" % (files, dir_count, elapsed[0], elapsed[1]),
+                    print "files: %d/%d  elapsed: %d minutes, %d seconds, memory: %d\%          \r" % (files, dir_count, elapsed[0], elapsed[1], process.get_memory_percent()),
                     sys.stdout.flush()
                 lines_processed = lines_read = 0
                 line = f.readline()
@@ -77,12 +79,12 @@ def parse_snps(params):
                                 lines_processed += 1
                                 
                                 # Add to the results
-                                result = results_set.get_result_always(snp_values)
+                                result = results_set.get_or_create_result(snp_values.get_rsid(), snp_values.get_chromosome(), snp_values.get_position())
                                 result.add_one(label, snp_values.get_genotype())
                             
                     if params.get_show_lines_progress_interval() > 0 and lines_read % params.get_show_lines_progress_interval() == 0:
                         elapsed = get_elapsed();
-                        print "file: {:,d}/{:,d}  lines read: {:,d}  processed {:,d}  elapsed: {:,d} minutes, {:,d} seconds          \r".format(files, dir_count, lines_read, lines_processed, int(elapsed[0]), int(elapsed[1])), 
+                        print "file: {:,d}/{:,d}  lines read: {:,d}  processed {:,d}  elapsed: {:,d} minutes, {:,d} seconds, memory: {:d}%        \r".format(files, dir_count, lines_read, lines_processed, int(elapsed[0]), int(elapsed[1]), int(process.get_memory_percent())), 
                         sys.stdout.flush()
                     line = f.readline()
                 if (params.get_show_selected_files() and lines_processed == 0):

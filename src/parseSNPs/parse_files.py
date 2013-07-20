@@ -37,13 +37,15 @@ if __name__=="__main__":
                     # The "FILES" line int the parameter file will look like this:
                     #   FILES:Group 1:1    user10_*.txt, user11_*.txt, user13_*.txt, user14_*.txt
                     # The line is in two sections, separated by a tab.
-                    # The first section containers the group label and priority, separated by a colon
+                    # The first section contains the group label and priority sequence, separated by a colon
                     # The second section lists file selectors for the group, separated by commas.
-                    file_group = FileGroup()
                     label_and_priority = name.split(":")
-                    if len(label_and_priority) > 2:
-                        file_group.set_label(label_and_priority[1])         
-                        file_group.set_priority(int(label_and_priority[2]))                  
+                    if len(label_and_priority) != 3:
+                        sys.exit("When specifying file groups, the line must begin with FILES:[label]:[priority seq] " +
+                              "where [label] is a name you want to assign to the group and [priority seq] controls " +
+                              "the order in which the groups are checked against a filename, lowest first.  The value '"
+                              + name + "' is not in this format")
+                    file_group = FileGroup(label_and_priority[1], int(label_and_priority[2]))                  
                     for file_selector in val.split(","):
                         file_group.add_file_selector(file_selector)
                     params.add_file_group(file_group)

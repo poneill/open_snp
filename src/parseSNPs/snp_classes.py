@@ -7,6 +7,7 @@ Author: David Gray
 
 import sys
 import fnmatch
+from snp_utils import *
 
 ####################################################################################
 #
@@ -30,21 +31,13 @@ class ResultsSet:
 		string_out += " )\n"
 		return string_out
 	
-	# Get a result if it exists.  Otherwise return None
-	def get_result_or_none(self, rsid, chromosome, position):
-		key = Result.get_key_static(rsid, chromosome, position)
-		result = None
-		if (key in self.results):
-			result = results[key]
-		return result	
-	
 	# Get a result if found or create a result for the SnpValues instance passed in and return the result
-	def get_result_always(self, snp_values):
-		key = Result.get_key_static(snp_values.get_rsid(), snp_values.get_chromosome(), snp_values.get_position())
+	def get_or_create_result(self, rsid, chromosome, position):
+		key = Result.get_key_static(rsid, chromosome, position)
 		if (key in self.results):
 			result = self.results[key]
 		else:
-			result = Result(snp_values.get_rsid(), snp_values.get_chromosome(), snp_values.get_position())
+			result = Result(rsid, chromosome, position)
 			self.results[key] = result
 		return result
 	
@@ -84,19 +77,19 @@ class Result:
 	
 	# Get a key that can be used when placing these in a dictionary
 	def get_key(self):
-		return get_key(self.rsid, self.chromosome, self.position)
+		return Result.get_key_static(self.rsid, self.chromosome, self.position)
 	
 	# Get the RSID for these results
 	def get_rsid (self):
-		return rsid
+		return self.rsid
 	
 	# Get the chromosome number for these results
 	def get_chromosome (self):
-		return chromosome
+		return self.chromosome
 	
-	# Get the postition for these results
+	# Get the position for these results
 	def get_position (self):
-		return position
+		return self.position
 	
 	# Add one genotype for a given group label
 	def add_one (self, label, gtype):
@@ -106,8 +99,8 @@ class Result:
 	
 	# Get the results for a group given the label
 	def get_group (self, label):
-		if label in self.gtypes:
-			return self.gtypes[ label ]
+		if label in self.groups:
+			return self.groups[ label ]
 		else:
 			return Group(label)
 	
@@ -139,7 +132,7 @@ class Group:
 	
 	# Get the group label	
 	def get_label (self):
-		return label
+		return self.label
 	
 	# Add a single genotype instance for the group	
 	def add_genotype (self, gtype):
@@ -172,7 +165,7 @@ class Params:
 		self.chromosomes = None
 		self.pos_start = 0
 		self.pos_end = sys.maxint
-		self.show_progress_lines = 0
+		self.show_lines_progress_interval = 0
 		self.show_file_progress = False
 		self.show_selected_files = False
 		self.file_groups = []
@@ -208,7 +201,7 @@ class Params:
 		inserted = False
 		while i < len (self.file_groups):
 			# Keep groups in priority sequence
-			if file_group.get_priority() < self.file_groups[i].get_priority():
+			if file_group.get_priority_seq() < self.file_groups[i].get_priority_seq():
 				self.file_groups.insert(i, file_group)
 				inserted = True
 				break
@@ -264,12 +257,14 @@ class Params:
 	
 	# Determine whether a SnpValues instance should be processed
 	def process (self, snp_values):
-		chromosome_ok = self.chromosomes == None
-		if not chromosome_ok:
+		chromosome_ok = False
+		if(self.chromosomes):
 			for chromosome in self.chromosomes:
 				chromosome_ok = fnmatch.fnmatch(snp_values.get_chromosome(), chromosome)
 				if chromosome_ok:
 					break;
+		else:
+			chromosome_ok = True
 		return fnmatch.fnmatch(snp_values.get_rsid(), self.rsid) \
 			and chromosome_ok \
 			and snp_values.get_position() >= self.pos_start \
@@ -277,7 +272,7 @@ class Params:
 	
 	# Set the directory containing the SNP files.  E.g. 'C:\\OpenSNP'
 	def set_directory_location (self, dir):
-		self.dir = dir.strip().upper()
+		self.dir = dir.strip()
 	
 	# Set the ending chromosome position to include. Ignore all positions in chromosomes greater than this value.
 	def set_position_end (self, pos_end):
@@ -313,15 +308,15 @@ class Params:
 ####################################################################################
 class FileGroup:
 	# Constructor
-	def __init__(self):
-		self.label = "label"
-		self.priority = 1
+	def __init__(self, label, priority_seq):
+		self.label = label
+		self.priority_seq = priority_seq
 		self.files = []
 	
 	# Convert the contents to a string
 	def __str__(self):
 		string_out = "\n      ( FileGroup: label " + self.label
-		string_out += ", priority " + str(self.priority) 
+		string_out += ", priority_seq " + str(self.priority_seq) 
 		string_out += ", file selectors:"
 		for entry in sorted(self.files):
 			string_out += "\n         " + entry   
@@ -336,9 +331,9 @@ class FileGroup:
 	def get_label (self):
 		return self.label
 	
-	# Get the file group priority	
-	def get_priority (self):
-		return self.priority
+	# Get the file group priority sequence	
+	def get_priority_seq (self):
+		return self.priority_seq
 	
 	# Return True if the file name matches a file selector in this group
 	def matches(self, file_name):
@@ -348,14 +343,6 @@ class FileGroup:
 				matches = True
 				break
 		return matches
-	
-	# Set the file group label
-	def set_label (self, label):
-		self.label = label.strip()
-	
-	# Set the file group priority	
-	def set_priority (self, priority):
-		self.priority = priority
 
 ####################################################################################
 #
@@ -475,7 +462,7 @@ class IlluminaSNPProcessor(AbstractSNPProcessor):
 	
 	# Get a label to use when summarizing counts for this file type
 	def get_file_type_label(self):
-		raise NotImplementedError("Should have implemented parse_line")
+		return "illumina"
 	
 	# Parse a SNP file line of data for this file type
 	def parse_line(self, line):
@@ -493,7 +480,15 @@ class IlluminaSNPProcessor(AbstractSNPProcessor):
 				# rs4477212        1        82154    T    T
 				data = line.strip().split("\t")
 				if (len(data) == 5):
+					# Example user1035_file518_yearofbirth_1986_sex_XX.ftdna-illumina.txt
 					snp_values = SnpValues(data[0], data[1], int(data[2]), data[3] + data[4])
+				else:
+					# rsid chromosome position allele1 allele2
+					# rs11240777 1 788822 AA
+					data = line.strip().split(" ")
+					if (len(data) == 4):
+						# Example user981_file487_yearofbirth_1966_sex_unknown.ftdna-illumina.txt
+						snp_values = SnpValues(data[0], data[1], int(data[2]), data[3])
 		except ValueError:
 			pass  # Nothing to do.  Returning None handles the issue
 		return snp_values
@@ -557,7 +552,6 @@ class DecodeMeSNPProcessor(AbstractSNPProcessor):
 		# rs4345758,C/T,1,28663,+,TT		
 		snp_values = None
 		data = line.strip().split(",")
-		data = strip_quotes(line.strip()).split("\t")
 		if (len(data) == 6):
 			try:
 				snp_values = SnpValues(data[0], data[2], int(data[3]), data[5])
