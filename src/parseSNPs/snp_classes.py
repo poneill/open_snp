@@ -124,9 +124,9 @@ class Group:
 		string_out = "( Group: label '" + self.label + "': "
 		group_info = ""
 		for entry in sorted(self.gtypes.items()):
-			if len( group_info ) > 0:
-				string_out += ", "
-        	group_info += entry[0] + "=" + str(entry[1])   
+			if len(group_info) > 0:
+				group_info += ", "
+			group_info += entry[0] + "=" + str(entry[1])   
 		string_out += group_info + " )"
 		return string_out
 	
