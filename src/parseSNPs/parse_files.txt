@@ -16,9 +16,10 @@ DIR	C:\OpenSNP
 # for the last category, all files that don't fit into one of the first two groups.
 # The priority controls the order of selection.  The third group is a wildcard, so it includes all ".txt" files that
 # weren't already selected for one of the first two groups.
-FILES:Rollers:1	user1_*.txt, user10_*.txt, user1029_*.txt, user1036_*.txt, user1038_*.txt
+FILES:Rollers:1	user1_*.txt
+#, user10_*.txt, user1029_*.txt, user1036_*.txt, user1038_*.txt
 #, user1042_*.txt, user11_*.txt, user124_*.txt, user125_*.txt, user14_*.txt, user141_*.txt, user158_*.txt, user159_*.txt, user165_*.txt, user17_*.txt, user187_*.txt, user202_*.txt, user203_*.txt, user204_*.txt, user216_*.txt, user241_*.txt, user276_*.txt, user285_*.txt, user294_*.txt, user296_*.txt, user325_*.txt, user328_*.txt, user33_*.txt, user330_*.txt, user337_*.txt, user340_*.txt, user341_*.txt, user347_*.txt, user35_*.txt, user36_*.txt, user366_*.txt, user368_*.txt, user439_*.txt, user45_*.txt, user463_*.txt, user466_*.txt, user468_*.txt, user495_*.txt, user497_*.txt, user503_*.txt, user533_*.txt, user539_*.txt, user54_*.txt, user542_*.txt, user554_*.txt, user561_*.txt, user579_*.txt, user58_*.txt, user580_*.txt, user581_*.txt, user585_*.txt, user596_*.txt, user602_*.txt, user613_*.txt, user63_*.txt, user64_*.txt, user646_*.txt, user651_*.txt, user667_*.txt, user668_*.txt, user672_*.txt, user675_*.txt, user693_*.txt, user704_*.txt, user721_*.txt, user726_*.txt, user734_*.txt, user735_*.txt, user74_*.txt, user745_*.txt, user749_*.txt, user758_*.txt, user767_*.txt, user77_*.txt, user775_*.txt, user779_*.txt, user782_*.txt, user784_*.txt, user803_*.txt, user806_*.txt, user808_*.txt, user810_*.txt, user816_*.txt, user822_*.txt, user824_*.txt, user827_*.txt, user842_*.txt, user865_*.txt, user881_*.txt, user894_*.txt, user915_*.txt, user916_*.txt, user920_*.txt, user943_*.txt, user945_*.txt, user966_*.txt, user99_*.txt, user990_*.txt
-FILES:Non-Rollers:2	user1034_*.txt, user1045_*.txt, user1047_*.txt, user266_*.txt, user279_*.txt
+#FILES:Non-Rollers:2	user1034_*.txt, user1045_*.txt, user1047_*.txt, user266_*.txt, user279_*.txt
 #, user287_*.txt, user345_*.txt, user352_*.txt, user403_*.txt, user42_*.txt, user429_*.txt, user437_*.txt, user500_*.txt, user502_*.txt, user549_*.txt, user583_*.txt, user595_*.txt, user609_*.txt, user637_*.txt, user649_*.txt, user684_*.txt, user8_*.txt, user814_*.txt, user830_*.txt, user972_*.txt, 
 
 # The RSID to search for in the file.  If unspecified or "*", all RSIDs are processed.  Example: 
@@ -31,7 +32,7 @@ RSID
 # A comma-separated list of the chromosomes (e.g. numbers from 1 to 23, X, Y and/or MT) to process.  
 # If unspecified, all are processed.  Example:
 # CHROMOSOMES	1,X
-CHROMOSOMES	
+CHROMOSOMES	1,2,3,4,5,6,7,8,9,10,11
 
 # The starting position on the chromosome to process.  If unspecified, all positions up to the END# are 
 # processed.  Example:

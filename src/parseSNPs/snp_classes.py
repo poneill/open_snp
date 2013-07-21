@@ -31,6 +31,14 @@ class ResultsSet:
         string_out += " )\n"
         return string_out
     
+    # print contents
+    def print_contents(self):
+        print "( Results:"
+        # for result in sorted(self.get_results_iterator()):
+        for result in self.get_results_iterator():
+            result.print_contents()
+        print ")"
+    
     # Get a result if found or create a result for the SnpValues instance passed in and return the result
     def get_or_create_result(self, rsid, chromosome, position):
         key = Result.get_key_static(rsid, chromosome, position)
@@ -65,10 +73,16 @@ class Result:
         string_out += "( Result: rsid " + str(self.rsid) 
         string_out += ", chromosome " + str(self.chromosome) 
         string_out += ", position " + str(self.position)
-        for entry in sorted(self.groups.items()):
-            string_out += "\n      " + str(entry[1])   
-        string_out += "\n   " + ")\n"
+        string_out += ": " + str(len(self.groups)) + " results )\n"
         return string_out
+    
+    # print contents
+    def print_contents(self):
+        print "   ( Result: rsid " + str(self.rsid) + ", chromosome " + str(self.chromosome) + ", position " + str(self.position) + ":"
+        for entry in self.groups.items():
+            print "      ",
+            entry[1].print_contents()
+        print "   )"
     
     # Statically get a key so it can be accessed without a Result instance
     @staticmethod
@@ -129,6 +143,18 @@ class Group:
             group_info += entry[0] + "=" + str(entry[1])   
         string_out += group_info + " )"
         return string_out
+    
+    # print contents
+    def print_contents(self):
+        print "( Group: label '" + self.label + "': ",
+        first = True
+        for entry in sorted(self.gtypes.items()):
+            if first:
+                first = False;
+            else:
+                print ", ",
+            print entry[0] + "=" + str(entry[1]),
+        print " )"
     
     # Get the group label    
     def get_label (self):

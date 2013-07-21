@@ -81,7 +81,7 @@ if __name__=="__main__":
     print "\n" 
     if (len(results_set) > 0):
     #    for entry in sorted(results.items(), key=lambda t: rsid_key_seq(t[0])):
-        print str( results_set )
+        results_set.print_contents()
     else:
         print "Nothing matched selections"
     

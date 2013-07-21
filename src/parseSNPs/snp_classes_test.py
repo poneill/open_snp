@@ -115,9 +115,7 @@ class Result_test(unittest.TestCase):
         self.assertTrue("RS12345" in output_string)
         self.assertTrue("chromosome 1," in output_string)
         self.assertTrue("123456" in output_string)
-        self.assertTrue("AA=2" in output_string)
-        self.assertTrue("AG=2" in output_string)
-        self.assertTrue("CT=1" in output_string)
+        self.assertTrue(" 2 results" in output_string)
 
 ####################################################################################
 #
