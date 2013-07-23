@@ -13,3 +13,6 @@
 : {user:{phenotype:value}}
   Each user has a value for each phenotype, assuming =None= is an
   admissible value.
+
+[{phenotype:{phenotype:name, phenotype_id:value,data:{user_id:id,value:value}}}]
+ A list of phenotypes each having a name and id, each phenotype has a list of users that have responded and have a value other than "-" for the phenotype
