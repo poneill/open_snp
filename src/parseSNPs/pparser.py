@@ -1,8 +1,7 @@
 import sys
 import json
 import re #regular expressions
-
-
+import csv
 from string import maketrans
 
 def Rev(s): 
@@ -18,41 +17,35 @@ if __name__ == "__main__":
     print sys.argv
 
 #filename = sys.argv[1]
-#get the lines out of the file
-
-file=open("phenotypes.csv")
-text=file.read()
-file.close()
-lines = text.split("\n")
 
 
-header = lines[0].split(";")
-
-separatedLine = {}
-
+#json data that will be written to file
 output = []
+i = 0
 
+#read CSV column by column, then row by row and create a JSON file from it, containing only phenotypes for which
+#a value was provided
 
-for i in range(len(header)):
-    column = header[i]
-    #replace all non whitespace \W+ with underscores
-    #phenotype = (re.sub(r'[\W+]', '_', removeNonAscii(column.strip()))).lower()
-    phenotype = column
+with open('phenotypes.csv', 'rb') as csvfile:
+        csvreader = csv.DictReader(csvfile,dialect='excel', delimiter=';', quotechar='"')
+        #phenotype is a column
+        for phenotype in csvreader.fieldnames:
+            
+            phenotypeDictionary = []
+            
+            for row in csvreader:
 
-    print "processing "+ str(i)+"/" +str(len(header)) +" phenotype: "+ phenotype
+                if(len(row[phenotype].replace("-",""))>0):
+                    dictionary = {'user_id': row["user_id"], 'value': row[phenotype]}
+                    phenotypeDictionary.append(dictionary)
 
-#create a new phenotype dictionary for each phenotype
-    phenotypeDictionary = []
+            
+            print "processing "+ str(i)+"/" +str(len(csvreader.fieldnames)) +" phenotype: "+ phenotype
+            output.append({"phenotype":phenotype,"phenotype_id":i,"data": phenotypeDictionary})
+            i = i+1
+            csvfile.seek(0) #reset the file, otherwise csvdata iterates over rows only once
+                
 
-    for lineIndex in range(len(lines)):
-        separatedLine = lines[lineIndex].split(";")
-        if(i<len(separatedLine) and len(separatedLine[i].replace("-",""))>0):
-#populate data if it is not blank
-          dictionary = {'user_id': separatedLine[0], 'value': separatedLine[i]}
-          phenotypeDictionary.append(dictionary)
-
-    output.append({"phenotype":phenotype,"phenotype_id":i,"data": phenotypeDictionary})
-          #print phenotype+": user: "+ separatedLine[0]+" value: "+separatedLine[i]
         
 
 
@@ -67,6 +60,44 @@ with open('phenotypes_pretty.json', 'w') as outfile:
     outfile.close()
 
 print "Created henotypes_plain.json and phenotypes_pretty.json"
+
+
+#now create a json dictionary for each user
+
+output = []
+
+with open('phenotypes.csv', 'rb') as csvfile:
+            csvreader = csv.DictReader(csvfile,dialect='excel', delimiter=';', quotechar='"')
+            #phenotype is a column
+            
+            fieldNamesList = list(csvreader.fieldnames)
+            for row in csvreader:
+                userDictionary = []
+                i = 0
+
+                for phenotype in fieldNamesList:
+
+                    if len(row[phenotype].replace("-",""))>0:
+                        dictionary = {phenotype: row[phenotype],"phenotype_id":i}
+                        userDictionary.append(dictionary)
+                    i = i + 1
+                    
+                print "processing user_id: "+ row["user_id"]
+                output.append({"user_id":row["user_id"],"data": userDictionary})
+ #           csvfile.seek(0) #reset the file, otherwise csvdata iterates over rows only once
+                
+
+ #create json without special formatting
+with open('users_plain.json', 'w') as outfile:
+  json.dump(output, outfile)
+  outfile.close()
+
+#create json with pretty print for readability
+with open('users_pretty.json', 'w') as outfile:
+    outfile.write(json.dumps(output, sort_keys=True, indent=4, separators=(',', ': ')))
+    outfile.close()
+
+print "Created users_plain.json and users_pretty.json"
 
 
 #writes pretty printed json string to file
